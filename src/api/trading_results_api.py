@@ -36,7 +36,7 @@ async def base_query(session: AsyncSession, filters=None, order_by=None, limit=N
 async def get_last_trading_dates(
         request: Request,
         session: SessionDep,
-        limit: int = Query(5, ge=1, description="Количество последних торговых дней")
+        limit: int = Query(default=5, ge=1, description="Количество последних торговых дней")
 ) -> list[str]:
     results = await base_query(
         session,
@@ -116,7 +116,7 @@ async def get_trading_results(
         oil_id: Optional[str] = Query(None),
         delivery_type_id: Optional[str] = Query(None),
         delivery_basis_id: Optional[str] = Query(None),
-        limit: int = Query(10, ge=1)
+        limit: int = Query(default=10, ge=1)
 ) -> List[TradingResult]:
     # Проверка, что указан хотя бы один фильтр
     if not any([oil_id, delivery_type_id, delivery_basis_id]):
