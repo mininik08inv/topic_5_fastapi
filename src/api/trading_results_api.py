@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from typing import Annotated, Optional, List
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, desc
+from sqlalchemy import select, and_, desc, distinct
 
 from src.databases.database import get_session
 from src.models.trading_results_model import SpimexTradingResults
@@ -29,19 +29,28 @@ async def base_query(session: AsyncSession, filters=None, order_by=None, limit=N
     return result.scalars().all()
 
 
-@router.get("/last_trading_dates", response_model=List[str])
+@router.get("/last_trading_dates", response_model=List[date])
 @cache_response(key_prefix="spimex", expire=get_seconds_until_tomorrow_1411())
 async def get_last_trading_dates(
         request: Request,
         session: SessionDep,
-        limit: int = Query(default=5, ge=1, description="Количество последних торговых дней")
-) -> list[str]:
-    results = await base_query(
-        session,
-        order_by=desc(SpimexTradingResults.date),
-        limit=limit
+        limit: int = Query(
+            default=5,
+            ge=1,
+            le=1000,  # Добавляем верхний лимит для защиты
+            description="Количество последних торговых дней (1-1000)"
+        )
+):
+    stmt = (
+        select(SpimexTradingResults.date)
+        .distinct()
+        .order_by(SpimexTradingResults.date.desc())
+        .limit(limit)
     )
-    dates = [str(row.date) for row in results]
+    results = await session.scalars(stmt)
+
+    dates = [str(row) for row in results]
+    print(dates)
     return dates
 
 
