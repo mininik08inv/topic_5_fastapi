@@ -22,7 +22,7 @@ class DatabaseConfig(BaseSettings):
 class RedisConfig(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
-    # cache_reset_time: str
+    CACHE_RESET_TIME: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

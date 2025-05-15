@@ -29,7 +29,10 @@ async def init_redis() -> Redis:
 def get_seconds_until_tomorrow_1411():
     now = datetime.now()
     tomorrow = now.date() + timedelta(days=1)
-    target_time = datetime.combine(tomorrow, datetime.strptime("14:11", "%H:%M").time())
+    target_time = datetime.combine(tomorrow, datetime.strptime(
+        config.redis.CACHE_RESET_TIME,
+        "%H:%M").time()
+                                   )
     delta = target_time - now
     return math.ceil(delta.total_seconds())
 
