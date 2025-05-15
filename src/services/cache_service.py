@@ -9,14 +9,17 @@ from fastapi import Request
 from typing import Any, TypeVar, Type, Optional, Callable
 from pydantic import BaseModel
 
+from src.configs.config import config
+
 T = TypeVar('T', bound=BaseModel)
 
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=config.log.loging_default_lavel)
 
 # Конфигурация кеширования
 CACHE_RESET_TIME = time(14, 11)  # Время сброса кеша (14:11)
-REDIS_URL = "redis://localhost:6379"
+REDIS_URL = f"redis://{config.redis.host}:{config.redis.port}"
 
 
 async def init_redis() -> Redis:
