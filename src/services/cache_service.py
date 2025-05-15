@@ -19,7 +19,7 @@ logging.basicConfig(level=config.log.loging_default_lavel)
 
 # Конфигурация кеширования
 CACHE_RESET_TIME = time(14, 11)  # Время сброса кеша (14:11)
-REDIS_URL = f"redis://{config.redis.host}:{config.redis.port}"
+REDIS_URL = config.redis.REDIS_URL
 
 
 async def init_redis() -> Redis:
@@ -34,24 +34,24 @@ def get_seconds_until_tomorrow_1411():
     return math.ceil(delta.total_seconds())
 
 
-async def daily_cache_cleanup(redis: Redis):
-    """Фоновая задача для ежедневной очистки кеша"""
-    while True:
-        now = datetime.now()
-        next_reset = datetime.combine(now.date(), CACHE_RESET_TIME)
-
-        if now.time() >= CACHE_RESET_TIME:
-            next_reset += timedelta(days=1)
-
-        sleep_seconds = (next_reset - now).total_seconds()
-        logger.debug(f"Следующая очистка кеша в {next_reset} (через {sleep_seconds:.0f} секунд)")
-
-        await asyncio.sleep(sleep_seconds)
-
-        keys = await redis.keys("spimex:*")
-        if keys:
-            await redis.delete(*keys)
-            logger.info(f"Очищено {len(keys)} ключей кеша")
+# async def daily_cache_cleanup(redis: Redis):
+#     """Фоновая задача для ежедневной очистки кеша"""
+#     while True:
+#         now = datetime.now()
+#         next_reset = datetime.combine(now.date(), CACHE_RESET_TIME)
+#
+#         if now.time() >= CACHE_RESET_TIME:
+#             next_reset += timedelta(days=1)
+#
+#         sleep_seconds = (next_reset - now).total_seconds()
+#         logger.debug(f"Следующая очистка кеша в {next_reset} (через {sleep_seconds:.0f} секунд)")
+#
+#         await asyncio.sleep(sleep_seconds)
+#
+#         keys = await redis.keys("spimex:*")
+#         if keys:
+#             await redis.delete(*keys)
+#             logger.info(f"Очищено {len(keys)} ключей кеша")
 
 
 class CacheService:

@@ -16,19 +16,22 @@ class DatabaseConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
-        # env_prefix="DB_"
     )
 
 
 class RedisConfig(BaseSettings):
-    host: str
-    port: int
+    REDIS_HOST: str
+    REDIS_PORT: int
+    # cache_reset_time: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
-        env_prefix="REDIS_"
     )
+
+    @property
+    def REDIS_URL(self):
+        return f"redis://{config.redis.REDIS_HOST}:{config.redis.REDIS_PORT}"
 
 
 class LoggingConfig(BaseSettings):
