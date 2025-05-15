@@ -1,12 +1,11 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 
-from src.configs.config import Config
+from src.configs.config import config
 
-config = Config.load()
 
-DATABASE_URL = f"postgresql+asyncpg://{config.db.user}:{config.db.password}@{config.db.host}:{config.db.port}/{config.db.database}"
-
+# DATABASE_URL = f"postgresql+asyncpg://{config.db.DB_USER}:{config.db.DB_PASSWORD}@{config.db.DB_HOST}:{config.db.DB_PORT}/{config.db.DB_DATABASE}"
+DATABASE_URL = config.db.DB_URL
 
 class Base(DeclarativeBase):
     pass

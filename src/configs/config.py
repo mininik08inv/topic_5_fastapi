@@ -1,44 +1,52 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pathlib import Path
-from dotenv import load_dotenv
-import os
 
 
 class DatabaseConfig(BaseSettings):
-    host: str = Field(..., alias="DB_HOST")
-    database: str = Field(..., alias="DB_DATABASE")
-    user: str = Field(..., alias="DB_USER")
-    password: str = Field(..., alias="DB_PASSWORD")
-    port: str = Field(..., alias="DB_PORT")
+    DB_HOST: str
+    DB_PORT: int
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_DATABASE: str
+
+    @property
+    def DB_URL(self):
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_DATABASE}"
 
     model_config = SettingsConfigDict(
+        env_file=".env",
         extra="ignore",
-        env_prefix="DB_"
     )
 
 
 class RedisConfig(BaseSettings):
-    host: str
-    port: int
+    REDIS_HOST: str
+    REDIS_PORT: int
+    CACHE_RESET_TIME: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+    )
+
+    @property
+    def REDIS_URL(self):
+        return f"redis://{config.redis.REDIS_HOST}:{config.redis.REDIS_PORT}"
+
+
+class LoggingConfig(BaseSettings):
+    loging_default_lavel: str
 
     model_config = SettingsConfigDict(
         extra="ignore",
-        env_prefix="REDIS_"
+        env_file=".env",
     )
 
 
 class Config(BaseSettings):
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
     redis: RedisConfig = Field(default_factory=RedisConfig)
+    log: LoggingConfig = Field(default_factory=LoggingConfig)
 
-    @classmethod
-    def load(cls) -> "Config":
-        env_path = Path(__file__).resolve().parent.parent.parent / ".env"
 
-        if not env_path.exists():
-            raise FileNotFoundError(f".env file not found at: {env_path}")
-
-        load_dotenv(env_path, override=True)
-
-        return cls()
+config = Config()

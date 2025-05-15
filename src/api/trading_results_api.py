@@ -4,14 +4,12 @@ from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, desc
 
-from src.configs.config import Config
 from src.databases.database import get_session
 from src.models.trading_results_model import SpimexTradingResults
 from src.schemas.trading_result_schema import TradingResult
 from src.services.cache_service import cache_response, get_seconds_until_tomorrow_1411
 
 router = APIRouter()
-config = Config()
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
