@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from typing import Annotated, Optional, List
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, desc, distinct
+from sqlalchemy import select, and_, desc
 
 from src.databases.database import get_session
 from src.models.trading_results_model import SpimexTradingResults
@@ -10,7 +10,7 @@ from src.schemas.trading_result_schema import TradingResult
 from src.services.cache_service import cache_response, get_seconds_until_tomorrow_1411
 
 router = APIRouter()
-SessionDep = Annotated[AsyncSession, Depends(get_session)]
+# SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 async def base_query(session: AsyncSession, filters=None, order_by=None, limit=None):
@@ -33,7 +33,7 @@ async def base_query(session: AsyncSession, filters=None, order_by=None, limit=N
 @cache_response(key_prefix="spimex", expire=get_seconds_until_tomorrow_1411())
 async def get_last_trading_dates(
         request: Request,
-        session: SessionDep,
+        session: Annotated[AsyncSession, Depends(get_session)],
         limit: int = Query(
             default=5,
             ge=1,
@@ -50,7 +50,6 @@ async def get_last_trading_dates(
     results = await session.scalars(stmt)
 
     dates = [str(row) for row in results]
-    print(dates)
     return dates
 
 
@@ -58,7 +57,7 @@ async def get_last_trading_dates(
 @cache_response(key_prefix="spimex", expire=get_seconds_until_tomorrow_1411())
 async def get_dynamics(
         request: Request,
-        session: SessionDep,
+        session: Annotated[AsyncSession, Depends(get_session)],
         oil_id: Optional[str] = Query(None),
         delivery_type_id: Optional[str] = Query(None),
         delivery_basis_id: Optional[str] = Query(None),
@@ -119,7 +118,7 @@ async def get_dynamics(
 @cache_response(key_prefix="spimex", expire=get_seconds_until_tomorrow_1411())
 async def get_trading_results(
         request: Request,
-        session: SessionDep,
+        session: Annotated[AsyncSession, Depends(get_session)],
         oil_id: Optional[str] = Query(None),
         delivery_type_id: Optional[str] = Query(None),
         delivery_basis_id: Optional[str] = Query(None),

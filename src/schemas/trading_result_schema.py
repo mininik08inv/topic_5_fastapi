@@ -1,7 +1,8 @@
 from datetime import date
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict
 from typing import Any
 import json
+
 
 class TradingResult(BaseModel):
     exchange_product_id: str
@@ -15,12 +16,14 @@ class TradingResult(BaseModel):
     count: int
     date: str
 
-    class Config:
-        from_attributes = True
-        json_encoders = {
-            date: lambda v: v.isoformat(),
-            float: lambda v: round(v, 2)  # Округляем float до 2 знаков
-        }
+    model_config = ConfigDict(
+        from_attributes=True,
+        # json_encoders={
+        #     date: lambda v: v.isoformat(),
+        #     float: lambda v: round(v, 2)
+        # }
+    )
+
 
     @field_validator('date', mode='before')
     def parse_date(cls, value):
