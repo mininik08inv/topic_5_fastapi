@@ -15,8 +15,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from httpx import AsyncClient, ASGITransport
 
 from main import app
-from src.databases.database import Base, get_session
-from src.models.trading_results_model import SpimexTradingResults
+from src.databases.database import get_session
+from src.models.trading_results_model import SpimexTradingResults, Base
 
 from data import list_models_SpimexTradingResults
 
@@ -32,6 +32,7 @@ async def create_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+
 @pytest_asyncio.fixture
 async def add_objects(get_session_fixt):
     get_session_fixt.add_all(list_models_SpimexTradingResults)
@@ -41,11 +42,6 @@ async def add_objects(get_session_fixt):
 @pytest_asyncio.fixture
 async def get_session_fixt():
     await create_tables()
-    print()
-    print()
-    print('----------async def get_session_fixt-подменная функция')
-    print()
-    print()
     async with AsyncSessionLocal() as session:
         yield session
 
@@ -55,14 +51,19 @@ async def client(get_session_fixt, add_objects):
     async def override_get_session():
         return get_session_fixt
 
-    # Подсчет количества записей в тестовой бд == 15
-    # result = await get_session_fixt.execute(select(func.count()).select_from(SpimexTradingResults))
-    # count_objects = result.scalar()
-    # print('++++++', count_objects)
-
     app.dependency_overrides[get_session] = override_get_session
 
     client = AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
     yield client
     await client.aclose()
     app.dependency_overrides.clear()
+
+# def pytest_sessionfinish(session, exitstatus):
+#     print("""
+#   _____
+# < Tests >
+#   -----
+#          \\   ^__^
+#           \\  (oo)\\________   /
+#              (__)\\     (  )\\/
+#                 /      ```/""")

@@ -100,9 +100,7 @@ async def get_dynamics(
         filters=filters if filters else None,
         order_by=desc(SpimexTradingResults.date)
     )
-    print(results)
     if len(results) > 0:
-
         return [TradingResult.model_validate(row) for row in results]
     else:
         raise HTTPException(
