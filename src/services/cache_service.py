@@ -22,7 +22,7 @@ CACHE_RESET_TIME = time(14, 11)  # Время сброса кеша (14:11)
 REDIS_URL = config.redis.REDIS_URL
 
 
-async def init_redis() -> Redis:
+def init_redis() -> Redis:
     """Инициализация подключения к Redis"""
     return Redis.from_url(REDIS_URL, decode_responses=True)
 
@@ -97,7 +97,7 @@ def cache_response(
     def decorator(func):
         @wraps(func)
         async def wrapper(request: Request, *args, **kwargs):
-            cache = CacheService(request.app.state.redis)
+            cache = CacheService(init_redis())
             new_kwargs = {k: v for k, v in kwargs.items() if k != 'session'}  # Убираем сессию из ключа
             cache_key = f"{key_prefix}:{func.__name__}:{str(new_kwargs)}"
 

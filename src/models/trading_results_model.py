@@ -1,6 +1,10 @@
 from sqlalchemy import Column, Integer, String, Numeric, Date, DateTime
+from sqlalchemy.orm import DeclarativeBase
 from datetime import datetime
-from src.databases.database import Base
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 # Модель для хранения результатов торгов Spimex
