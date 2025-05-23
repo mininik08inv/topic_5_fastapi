@@ -1,7 +1,13 @@
+import time
 from datetime import date
+
+import pytest
+
 from src.schemas.trading_result_schema import TradingResult
 from src.models.trading_results_model import SpimexTradingResults
 
+
+@pytest.mark.schema
 def test_trading_result_schema():
     data = {
         "exchange_product_id": "A100NVY060F",
@@ -19,7 +25,10 @@ def test_trading_result_schema():
     assert result.date == "2024-07-31"
     assert result.volume == 120.0
 
+
+@pytest.mark.schema
 def test_model_to_schema():
+    time.sleep(4)
     model = SpimexTradingResults(
         exchange_product_id="A100NVY060F",
         exchange_product_name="Бензин",
