@@ -28,22 +28,23 @@ engine = create_async_engine(DATABASE_URL)
 AsyncSessionLocal = async_sessionmaker(bind=engine)
 
 
+@pytest_asyncio.fixture(scope='function')
 async def create_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
 @pytest_asyncio.fixture
-async def add_objects(get_session_fixt):
-    get_session_fixt.add_all(list_models_SpimexTradingResults)
-    await get_session_fixt.commit()
+async def get_session_fixt(create_tables):
+    # await create_tables()
+    async with AsyncSessionLocal() as session:
+        yield session
 
 
 @pytest_asyncio.fixture
-async def get_session_fixt():
-    await create_tables()
-    async with AsyncSessionLocal() as session:
-        yield session
+async def add_objects(get_session_fixt):
+    get_session_fixt.add_all(list_models_SpimexTradingResults)
+    await get_session_fixt.commit()
 
 
 @pytest_asyncio.fixture

@@ -140,3 +140,4 @@ async def test_get_trading_results_with_filters(client, query, expected_count):
     assert isinstance(results, list)
     assert len(results) == expected_count
     assert type(response.json()) == list
+

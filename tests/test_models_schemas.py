@@ -25,7 +25,7 @@ def test_trading_result_schema():
     assert result.date == "2024-07-31"
     assert result.volume == 120.0
 
-
+@pytest.mark.skip(reason='Просто для проверки skip')
 @pytest.mark.schema
 def test_model_to_schema():
     time.sleep(4)
@@ -43,3 +43,17 @@ def test_model_to_schema():
     )
     schema = TradingResult.model_validate(model)
     assert schema.date == "2024-07-31"
+
+from unittest.mock import Mock, patch
+
+@pytest.mark.schema
+def test_mock():
+    class User:
+        def get_name(self):
+            return "Alice"
+
+    # Создаем mock с "спецификацией" User (имитирует его методы)
+    mock_user = Mock(spec=User)
+    mock_user.get_name.return_value = "Bob"  # Подменяем метод
+
+    assert mock_user.get_name() == "Bob"
